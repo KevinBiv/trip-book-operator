@@ -1,12 +1,4 @@
-import React from "react";
-import {
-  MoreVertical,
-  MapPin,
-  Clock,
-  AlertTriangle,
-  Bus,
-  User,
-} from "lucide-react";
+import { MoreVertical, MapPin, AlertTriangle, Bus } from "lucide-react";
 
 interface Schedule {
   id: number;

@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/dashboard";
 import Schedule from "./pages/schedule";
+import RoutesDashboard from "./pages/routes";
 
 // function HomePage() {
 //   return (
@@ -71,6 +72,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/schedule" element={<Schedule />} />
+        <Route path="/routes" element={<RoutesDashboard />} />
       </Routes>
     </div>
   );

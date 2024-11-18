@@ -1,22 +1,16 @@
 import React, { useState } from "react";
-import {
-  X,
-  Calendar,
-  Clock,
-  MapPin,
-  Bus,
-  User,
-  AlertCircle,
-} from "lucide-react";
+import { X, Calendar, Clock, MapPin, Bus, User } from "lucide-react";
 
 interface AddScheduleModalProps {
   isOpen: boolean;
   onClose: () => void;
+  selectedDate?: Date | null;
 }
 
 export default function AddScheduleModal({
   isOpen,
   onClose,
+  selectedDate,
 }: AddScheduleModalProps) {
   const [scheduleType, setScheduleType] = useState<"one-time" | "recurring">(
     "one-time"
@@ -24,6 +18,10 @@ export default function AddScheduleModal({
   const [recurringDays, setRecurringDays] = useState<string[]>([]);
 
   if (!isOpen) return null;
+
+  const formattedDate = selectedDate
+    ? selectedDate.toISOString().split("T")[0]
+    : "";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -159,6 +157,7 @@ export default function AddScheduleModal({
                     <Calendar className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                     <input
                       type="date"
+                      defaultValue={formattedDate}
                       className="pl-10 w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                       required
                     />

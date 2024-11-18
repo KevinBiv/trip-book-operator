@@ -1,5 +1,6 @@
-import React from "react";
+import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import AddScheduleModal from "./AddScheduleModal";
 
 interface Schedule {
   time: string;
@@ -8,27 +9,57 @@ interface Schedule {
 }
 
 interface DaySchedule {
-  date: number;
+  date: Date;
   schedules: Schedule[];
   isCurrentMonth: boolean;
 }
 
 export default function ScheduleCalendar() {
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const currentDate = new Date();
   const currentMonth = currentDate.toLocaleString("default", {
     month: "long",
     year: "numeric",
   });
 
-  // Mock data for the calendar
-  const createMockDaySchedules = (): DaySchedule[] => {
-    const schedules: DaySchedule[] = [];
-    const daysInMonth = 35; // Show 5 weeks
+  // Function to generate calendar days
+  const createCalendarDays = (): DaySchedule[] => {
+    const days: DaySchedule[] = [];
+    const startDate = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      1
+    );
+    const startDay = startDate.getDay();
 
-    for (let i = 0; i < daysInMonth; i++) {
-      schedules.push({
-        date: i + 1,
-        isCurrentMonth: i < 30,
+    // Add days from previous month
+    const prevMonthDays = startDay;
+    for (let i = prevMonthDays - 1; i >= 0; i--) {
+      const date = new Date(startDate);
+      date.setDate(-i);
+      days.push({
+        date,
+        isCurrentMonth: false,
+        schedules: [],
+      });
+    }
+
+    // Add days from current month
+    const daysInMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() + 1,
+      0
+    ).getDate();
+    for (let i = 1; i <= daysInMonth; i++) {
+      const date = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        i
+      );
+      days.push({
+        date,
+        isCurrentMonth: true,
         schedules: [
           {
             time: "10:00 AM",
@@ -44,7 +75,27 @@ export default function ScheduleCalendar() {
       });
     }
 
-    return schedules;
+    // Add days from next month to complete the grid
+    const remainingDays = 42 - days.length; // 6 rows × 7 days = 42
+    for (let i = 1; i <= remainingDays; i++) {
+      const date = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() + 1,
+        i
+      );
+      days.push({
+        date,
+        isCurrentMonth: false,
+        schedules: [],
+      });
+    }
+
+    return days;
+  };
+
+  const handleDayClick = (day: DaySchedule) => {
+    setSelectedDate(day.date);
+    setIsAddModalOpen(true);
   };
 
   return (
@@ -75,14 +126,22 @@ export default function ScheduleCalendar() {
         ))}
 
         {/* Calendar days */}
-        {createMockDaySchedules().map((day, index) => (
+        {createCalendarDays().map((day, index) => (
           <div
             key={index}
-            className={`bg-white p-4 min-h-[160px] border border-gray-100 ${
-              !day.isCurrentMonth ? "bg-gray-50" : ""
-            }`}
+            onClick={() => handleDayClick(day)}
+            className={`bg-white p-4 min-h-[160px] border border-gray-100 
+              ${!day.isCurrentMonth ? "bg-gray-50" : ""} 
+              hover:bg-gray-50 cursor-pointer transition-colors
+              ${
+                selectedDate &&
+                day.date.toDateString() === selectedDate.toDateString()
+                  ? "ring-2 ring-primary-500"
+                  : ""
+              }
+            `}
           >
-            <div className="font-medium text-sm mb-2">{day.date}</div>
+            <div className="font-medium text-sm mb-2">{day.date.getDate()}</div>
             <div className="space-y-2">
               {day.schedules.map((schedule, idx) => (
                 <div
@@ -91,7 +150,7 @@ export default function ScheduleCalendar() {
                     schedule.status === "active"
                       ? "bg-green-50 text-green-700"
                       : "bg-gray-50 text-gray-700"
-                  } hover:bg-green-100 cursor-pointer transition-colors`}
+                  } hover:bg-green-100 transition-colors`}
                 >
                   <div className="font-medium">{schedule.time}</div>
                   <div className="text-xs text-gray-600">{schedule.route}</div>
@@ -101,6 +160,16 @@ export default function ScheduleCalendar() {
           </div>
         ))}
       </div>
+
+      {/* Add Schedule Modal */}
+      <AddScheduleModal
+        isOpen={isAddModalOpen}
+        onClose={() => {
+          setIsAddModalOpen(false);
+          setSelectedDate(null);
+        }}
+        selectedDate={selectedDate}
+      />
     </div>
   );
 }
