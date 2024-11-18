@@ -1,47 +1,49 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Search, Filter, Map, List, AlertCircle } from "lucide-react";
 import RoutesList from "../components/Routes/RoutesList";
 import AddRouteModal from "../components/Routes/AddRouteModal";
 import RouteMap from "../components/Routes/RouteMap";
 import DashboardLayout from "../components/Dashboard/DashboardLayout";
 
-const routes = [
-  {
-    id: "1",
-    name: "New York - Boston Express",
-    startPoint: "New York City Bus Terminal",
-    endPoint: "South Station, Boston",
-    duration: "4h 15m",
-    stops: 2,
-    status: "active",
-    occupancy: "85%",
-  },
-  {
-    id: "2",
-    name: "LA - San Francisco Coastal",
-    startPoint: "Los Angeles Union Station",
-    endPoint: "Salesforce Transit Center",
-    duration: "7h 30m",
-    stops: 4,
-    status: "active",
-    occupancy: "92%",
-  },
-  {
-    id: "3",
-    name: "Chicago - Detroit Direct",
-    startPoint: "Chicago Union Station",
-    endPoint: "Detroit Transit Center",
-    duration: "5h 45m",
-    stops: 1,
-    status: "inactive",
-    occupancy: "78%",
-  },
-];
+interface Route {
+  id: string;
+  name: string;
+  price: string;
+  estimatedDuration: string;
+  status: "active" | "inactive";
+}
 
 export default function RoutesDashboard() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedRoute, setSelectedRoute] = useState<string | null>(null);
   const [view, setView] = useState<"split" | "table">("split");
+  const [routes, setRoutes] = useState<Route[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const fetchRoutes = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/routes");
+      if (!response.ok) {
+        throw new Error("Failed to fetch routes");
+      }
+      const data = await response.json();
+      setRoutes(data);
+    } catch (error) {
+      console.error("Error fetching routes:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRoutes();
+  }, []);
+
+  // Filter routes based on search query
+  const filteredRoutes = routes.filter((route) =>
+    route.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <DashboardLayout>
@@ -52,9 +54,7 @@ export default function RoutesDashboard() {
             <h1 className="text-2xl font-bold text-gray-900">
               Routes Management
             </h1>
-            <p className="text-gray-600 mt-1">
-              Manage your bus routes and stops
-            </p>
+            <p className="text-gray-600 mt-1">Manage your bus routes</p>
           </div>
           <button
             onClick={() => setIsAddModalOpen(true)}
@@ -64,6 +64,7 @@ export default function RoutesDashboard() {
             <span>Add Route</span>
           </button>
         </div>
+
         {/* Search and Filters */}
         <div className="bg-white rounded-lg shadow-sm p-4">
           <div className="flex flex-col sm:flex-row gap-4 justify-between">
@@ -74,6 +75,8 @@ export default function RoutesDashboard() {
                 <input
                   type="text"
                   placeholder="Search routes..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                 />
               </div>
@@ -82,6 +85,7 @@ export default function RoutesDashboard() {
                 <span>Filters</span>
               </button>
             </div>
+
             {/* View Toggle */}
             <div className="flex bg-gray-100 rounded-lg p-1">
               <button
@@ -109,12 +113,23 @@ export default function RoutesDashboard() {
             </div>
           </div>
         </div>
+
         {/* Main Content */}
-        {view === "split" ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-gray-600">Loading routes...</div>
+          </div>
+        ) : filteredRoutes.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-64 bg-white rounded-lg shadow-sm">
+            <Map className="h-12 w-12 text-gray-400 mb-4" />
+            <p className="text-gray-600">No routes found</p>
+          </div>
+        ) : view === "split" ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Routes List */}
             <div className="bg-white rounded-lg shadow-sm">
               <RoutesList
+                routes={filteredRoutes}
                 onRouteSelect={setSelectedRoute}
                 selectedRoute={selectedRoute}
               />
@@ -128,7 +143,7 @@ export default function RoutesDashboard() {
                   <span>Full Screen</span>
                 </button>
               </div>
-              <RouteMap selectedRoute={selectedRoute} />
+              <RouteMap selectedRoute={selectedRoute} routes={routes} />
             </div>
           </div>
         ) : (
@@ -141,16 +156,10 @@ export default function RoutesDashboard() {
                       Route Name
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Route
+                      Price
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Duration
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Occupancy
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Stops
+                      Estimated Duration
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
@@ -161,34 +170,21 @@ export default function RoutesDashboard() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {routes.map((route) => (
+                  {filteredRoutes.map((route) => (
                     <tr key={route.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
                           {route.name}
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
-                          {route.startPoint}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          → {route.endPoint}
+                          {route.price}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
-                          {route.duration}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {route.occupancy}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {route.stops} {route.stops === 1 ? "stop" : "stops"}
+                          {route.estimatedDuration}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -206,8 +202,11 @@ export default function RoutesDashboard() {
                             route.status.slice(1)}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button className="text-primary-600 hover:text-primary-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button
+                          onClick={() => setSelectedRoute(route.id)}
+                          className="text-primary-600 hover:text-primary-900"
+                        >
                           View Details
                         </button>
                       </td>
@@ -218,10 +217,12 @@ export default function RoutesDashboard() {
             </div>
           </div>
         )}
+
         {/* Add Route Modal */}
         <AddRouteModal
           isOpen={isAddModalOpen}
           onClose={() => setIsAddModalOpen(false)}
+          onRouteAdded={fetchRoutes}
         />
       </div>
     </DashboardLayout>

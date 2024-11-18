@@ -1,11 +1,21 @@
+// RouteMap.tsx
 import React from "react";
 import { Map } from "lucide-react";
 
-interface RouteMapProps {
-  selectedRoute: string | null;
+interface Route {
+  id: string;
+  name: string;
+  price: string;
+  estimatedDuration: string;
+  status: "active" | "inactive";
 }
 
-export default function RouteMap({ selectedRoute }: RouteMapProps) {
+interface RouteMapProps {
+  selectedRoute: string | null;
+  routes: Route[];
+}
+
+export default function RouteMap({ selectedRoute, routes }: RouteMapProps) {
   if (!selectedRoute) {
     return (
       <div className="h-[400px] flex items-center justify-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
@@ -19,11 +29,18 @@ export default function RouteMap({ selectedRoute }: RouteMapProps) {
     );
   }
 
+  const selectedRouteData = routes.find((route) => route.id === selectedRoute);
+
   return (
     <div className="h-[400px] bg-gray-100 rounded-lg relative">
-      {/* Placeholder for actual map implementation */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <p className="text-gray-500">Map view for route {selectedRoute}</p>
+      <div className="absolute inset-0 flex items-center justify-center flex-col">
+        <h3 className="text-lg font-medium text-gray-900 mb-2">
+          {selectedRouteData?.name}
+        </h3>
+        <p className="text-gray-500">
+          Duration: {selectedRouteData?.estimatedDuration}
+        </p>
+        <p className="text-gray-500">Price: {selectedRouteData?.price}</p>
       </div>
     </div>
   );

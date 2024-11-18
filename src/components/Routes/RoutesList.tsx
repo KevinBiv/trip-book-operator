@@ -1,62 +1,24 @@
 import React from "react";
-import { MapPin, Clock, Users, ChevronRight, AlertCircle } from "lucide-react";
+import { Clock, ChevronRight, AlertCircle } from "lucide-react";
 
 interface Route {
   id: string;
   name: string;
-  startPoint: string;
-  endPoint: string;
-  duration: string;
-  distance: string;
-  stops: number;
+  price: string;
+  estimatedDuration: string;
   status: "active" | "inactive";
-  popularity: number;
 }
-
-const routes: Route[] = [
-  {
-    id: "1",
-    name: "New York - Boston Express",
-    startPoint: "New York City Bus Terminal",
-    endPoint: "South Station, Boston",
-    duration: "4h 15m",
-    distance: "215 mi",
-    stops: 2,
-    status: "active",
-    popularity: 85,
-  },
-  {
-    id: "2",
-    name: "LA - San Francisco Coastal",
-    startPoint: "Los Angeles Union Station",
-    endPoint: "Salesforce Transit Center",
-    duration: "7h 30m",
-    distance: "383 mi",
-    stops: 4,
-    status: "active",
-    popularity: 92,
-  },
-  {
-    id: "3",
-    name: "Chicago - Detroit Direct",
-    startPoint: "Chicago Union Station",
-    endPoint: "Detroit Transit Center",
-    duration: "5h 45m",
-    distance: "281 mi",
-    stops: 1,
-    status: "inactive",
-    popularity: 78,
-  },
-];
 
 interface RoutesListProps {
   onRouteSelect: (routeId: string) => void;
   selectedRoute: string | null;
+  routes: Route[];
 }
 
 export default function RoutesList({
   onRouteSelect,
   selectedRoute,
+  routes,
 }: RoutesListProps) {
   return (
     <div className="overflow-hidden">
@@ -93,27 +55,13 @@ export default function RoutesList({
                       <ChevronRight className="h-5 w-5 text-gray-400 ml-2" />
                     </div>
                   </div>
-                  <div className="mt-2 flex items-center justify-between">
-                    <div className="flex items-center text-sm text-gray-500">
-                      <MapPin className="flex-shrink-0 h-4 w-4 text-gray-400" />
-                      <span className="ml-1 truncate">
-                        {route.startPoint} → {route.endPoint}
-                      </span>
-                    </div>
-                  </div>
                   <div className="mt-2 flex items-center space-x-4">
                     <div className="flex items-center text-sm text-gray-500">
                       <Clock className="flex-shrink-0 h-4 w-4 text-gray-400" />
-                      <span className="ml-1">{route.duration}</span>
+                      <span className="ml-1">{route.estimatedDuration}</span>
                     </div>
-                    <div className="flex items-center text-sm text-gray-500">
-                      <Users className="flex-shrink-0 h-4 w-4 text-gray-400" />
-                      <span className="ml-1">
-                        {route.popularity}% occupancy
-                      </span>
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {route.stops} stops
+                    <div className="text-sm font-medium text-primary-600">
+                      {route.price}
                     </div>
                   </div>
                 </div>
