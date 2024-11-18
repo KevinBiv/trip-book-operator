@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/dashboard";
+import Schedule from "./pages/schedule";
 
 // function HomePage() {
 //   return (
@@ -69,6 +70,7 @@ function App() {
     <div className="min-h-screen bg-gray-50">
       <Routes>
         <Route path="/" element={<Dashboard />} />
+        <Route path="/schedule" element={<Schedule />} />
       </Routes>
     </div>
   );
