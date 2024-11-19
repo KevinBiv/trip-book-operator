@@ -1,4 +1,3 @@
-import React from "react";
 import { Clock, ChevronRight, AlertCircle } from "lucide-react";
 
 interface Route {

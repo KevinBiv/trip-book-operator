@@ -1,5 +1,3 @@
-// RouteMap.tsx
-import React from "react";
 import { Map } from "lucide-react";
 
 interface Route {

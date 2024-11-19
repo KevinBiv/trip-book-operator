@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/dashboard";
 import Schedule from "./pages/schedule";
 import RoutesDashboard from "./pages/routes";
+import FleetDashboard from "./pages/fleet";
 
 // function HomePage() {
 //   return (
@@ -73,6 +74,7 @@ function App() {
         <Route path="/" element={<Dashboard />} />
         <Route path="/schedule" element={<Schedule />} />
         <Route path="/routes" element={<RoutesDashboard />} />
+        <Route path="/fleet" element={<FleetDashboard />} />
       </Routes>
     </div>
   );
