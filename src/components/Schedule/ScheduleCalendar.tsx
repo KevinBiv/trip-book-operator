@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import AddScheduleModal from "./AddScheduleModal";
 
@@ -14,14 +14,30 @@ interface DaySchedule {
   isCurrentMonth: boolean;
 }
 
-export default function ScheduleCalendar() {
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+interface ScheduleCalendarProps {
+  selectedDate: Date | null;
+  onDateSelect: (date: Date | null) => void;
+  onAddSchedule: () => void;
+  refreshTrigger: number;
+}
+
+export default function ScheduleCalendar({
+  selectedDate,
+  onDateSelect,
+  onAddSchedule,
+  refreshTrigger,
+}: ScheduleCalendarProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const currentDate = new Date();
   const currentMonth = currentDate.toLocaleString("default", {
     month: "long",
     year: "numeric",
   });
+
+  //   useEffect(() => {
+  //     // Add your schedule fetching logic here
+  //     fetchSchedules();
+  //   }, [refreshTrigger]); // Refetch when refreshTrigger changes
 
   // Function to generate calendar days
   const createCalendarDays = (): DaySchedule[] => {
@@ -63,12 +79,12 @@ export default function ScheduleCalendar() {
         schedules: [
           {
             time: "10:00 AM",
-            route: "New York - Boston",
+            route: "Kigali - Muhanga",
             status: "active",
           },
           {
             time: "2:30 PM",
-            route: "Boston - New York",
+            route: "Kigali - Muhanga",
             status: "active",
           },
         ],
@@ -94,8 +110,8 @@ export default function ScheduleCalendar() {
   };
 
   const handleDayClick = (day: DaySchedule) => {
-    setSelectedDate(day.date);
-    setIsAddModalOpen(true);
+    onDateSelect(day.date);
+    onAddSchedule();
   };
 
   return (
@@ -160,16 +176,6 @@ export default function ScheduleCalendar() {
           </div>
         ))}
       </div>
-
-      {/* Add Schedule Modal */}
-      <AddScheduleModal
-        isOpen={isAddModalOpen}
-        onClose={() => {
-          setIsAddModalOpen(false);
-          setSelectedDate(null);
-        }}
-        selectedDate={selectedDate}
-      />
     </div>
   );
 }

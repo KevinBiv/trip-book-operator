@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Calendar, List, Plus, Search, Filter } from "lucide-react";
 import ScheduleCalendar from "../components/Schedule/ScheduleCalendar";
 import ScheduleList from "../components/Schedule/ScheduleList";
@@ -8,6 +8,19 @@ import DashboardLayout from "../components/Dashboard/DashboardLayout";
 export default function ScheduleDashboard() {
   const [view, setView] = useState<"calendar" | "list">("list");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleCloseModal = () => {
+    setIsAddModalOpen(false);
+    setSelectedDate(null);
+  };
+
+  const handleScheduleAdded = useCallback(() => {
+    // Trigger a refresh by incrementing the refreshTrigger
+    setRefreshTrigger((prev) => prev + 1);
+    handleCloseModal();
+  }, []);
 
   return (
     <DashboardLayout>
@@ -77,12 +90,24 @@ export default function ScheduleDashboard() {
         </div>
         {/* Schedule View Container */}
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          {view === "calendar" ? <ScheduleCalendar /> : <ScheduleList />}
+          {view === "calendar" ? (
+            <ScheduleCalendar
+              selectedDate={selectedDate}
+              onDateSelect={setSelectedDate}
+              onAddSchedule={() => setIsAddModalOpen(true)}
+              refreshTrigger={refreshTrigger}
+            />
+          ) : (
+            <ScheduleList refreshTrigger={refreshTrigger} />
+          )}
         </div>
         {/* Add Schedule Modal */}
         <AddScheduleModal
           isOpen={isAddModalOpen}
-          onClose={() => setIsAddModalOpen(false)}
+          onClose={handleCloseModal}
+          selectedDate={selectedDate}
+          onDateChange={setSelectedDate}
+          onScheduleAdded={handleScheduleAdded}
         />
       </div>
     </DashboardLayout>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Search, Filter, Bus, AlertCircle } from "lucide-react";
+import { Plus, Bus, AlertCircle } from "lucide-react";
 import DashboardLayout from "../components/Dashboard/DashboardLayout";
 import AddBusModal from "../components/Fleet/AddBusModal";
 

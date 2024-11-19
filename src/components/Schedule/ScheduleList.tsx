@@ -1,100 +1,118 @@
-import { MoreVertical, MapPin, AlertTriangle, Bus } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { MapPin, Clock, Bus, AlertTriangle, MoreVertical } from "lucide-react";
 
 interface Schedule {
-  id: number;
-  route: string;
-  departure: string;
-  arrival: string;
-  bus: string;
-  driver: string;
-  status: "On Time" | "Delayed" | "Completed";
-  type: "Express" | "Regular";
+  _id: string;
+  from: string;
+  to: string;
+  departureTime: string;
+  arrivalTime: string;
+  bus: {
+    _id: string;
+    plateNumber: string;
+    driver: string;
+    type: string;
+  };
+  status: "scheduled" | "in-transit" | "completed" | "cancelled";
+  price: number;
+  scheduleType: "one-time" | "recurring";
+  date?: string;
+  recurringDays?: string[];
 }
 
-const schedules: Schedule[] = [
-  {
-    id: 1,
-    route: "New York - Boston",
-    departure: "10:00 AM",
-    arrival: "2:00 PM",
-    bus: "Bus 123",
-    driver: "John Smith",
-    status: "On Time",
-    type: "Express",
-  },
-  {
-    id: 2,
-    route: "Boston - New York",
-    departure: "2:30 PM",
-    arrival: "6:30 PM",
-    bus: "Bus 456",
-    driver: "Sarah Johnson",
-    status: "Delayed",
-    type: "Regular",
-  },
-  // Add more schedules as needed
-];
+interface ScheduleListProps {
+  refreshTrigger: number;
+}
 
-export default function ScheduleList() {
+export default function ScheduleList({ refreshTrigger }: ScheduleListProps) {
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchSchedules();
+  }, [refreshTrigger]); // Refetch when refreshTrigger changes
+
+  useEffect(() => {
+    fetchSchedules();
+  }, []);
+
+  const fetchSchedules = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("http://localhost:5000/api/schedules");
+      if (!response.ok) {
+        throw new Error("Failed to fetch schedules");
+      }
+      const data = await response.json();
+      setSchedules(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="p-8 text-center text-gray-500">Loading schedules...</div>
+    );
+  }
+
+  if (error) {
+    return <div className="p-8 text-center text-red-500">{error}</div>;
+  }
+
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200">
-        <thead>
-          <tr className="bg-gray-50">
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
+        <thead className="bg-gray-50">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Route
             </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Time
             </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Bus & Driver
             </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Status
             </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Type
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Price
             </th>
-            <th scope="col" className="relative px-6 py-3">
-              <span className="sr-only">Actions</span>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Actions
             </th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {schedules.map((schedule) => (
-            <tr
-              key={schedule.id}
-              className="hover:bg-gray-50 transition-colors cursor-pointer"
-            >
+            <tr key={schedule._id} className="hover:bg-gray-50">
               <td className="px-6 py-4">
                 <div className="flex items-center space-x-3">
                   <MapPin className="h-5 w-5 text-gray-400" />
-                  <span className="text-sm font-medium text-gray-900">
-                    {schedule.route}
-                  </span>
+                  <div>
+                    <div className="text-sm font-medium text-gray-900">
+                      {schedule.from} → {schedule.to}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {schedule.scheduleType === "recurring"
+                        ? `Every ${schedule.recurringDays?.join(", ")}`
+                        : new Date(schedule.date!).toLocaleDateString()}
+                    </div>
+                  </div>
                 </div>
               </td>
               <td className="px-6 py-4">
                 <div className="text-sm text-gray-900">
-                  {schedule.departure}
+                  {schedule.departureTime}
                 </div>
-                <div className="text-sm text-gray-500">{schedule.arrival}</div>
+                <div className="text-sm text-gray-500">
+                  {schedule.arrivalTime}
+                </div>
               </td>
               <td className="px-6 py-4">
                 <div className="flex items-center">
@@ -103,10 +121,10 @@ export default function ScheduleList() {
                   </div>
                   <div className="ml-4">
                     <div className="text-sm font-medium text-gray-900">
-                      {schedule.bus}
+                      {schedule.bus.plateNumber}
                     </div>
                     <div className="text-sm text-gray-500">
-                      {schedule.driver}
+                      {schedule.bus.driver}
                     </div>
                   </div>
                 </div>
@@ -114,29 +132,26 @@ export default function ScheduleList() {
               <td className="px-6 py-4">
                 <span
                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    schedule.status === "On Time"
-                      ? "bg-green-100 text-green-800"
-                      : schedule.status === "Delayed"
+                    schedule.status === "scheduled"
+                      ? "bg-blue-100 text-blue-800"
+                      : schedule.status === "in-transit"
                       ? "bg-yellow-100 text-yellow-800"
-                      : "bg-gray-100 text-gray-800"
+                      : schedule.status === "completed"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
                   }`}
                 >
-                  {schedule.status === "Delayed" && (
+                  {schedule.status === "cancelled" && (
                     <AlertTriangle className="h-4 w-4 mr-1" />
                   )}
-                  {schedule.status}
+                  {schedule.status.charAt(0).toUpperCase() +
+                    schedule.status.slice(1)}
                 </span>
               </td>
-              <td className="px-6 py-4">
-                <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    schedule.type === "Express"
-                      ? "bg-primary-100 text-primary-800"
-                      : "bg-gray-100 text-gray-800"
-                  }`}
-                >
-                  {schedule.type}
-                </span>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-sm font-medium text-gray-900">
+                  {schedule.price.toLocaleString()} Rwf
+                </div>
               </td>
               <td className="px-6 py-4 text-right">
                 <button className="text-gray-400 hover:text-gray-500">
