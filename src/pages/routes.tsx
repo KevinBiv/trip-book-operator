@@ -22,8 +22,10 @@ export default function RoutesDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const fetchRoutes = async () => {
+    const baseURL = "https://trip-book-backend.onrender.com";
+
     try {
-      const response = await fetch("http://localhost:5000/api/routes");
+      const response = await fetch(`${baseURL}/api/routes`);
       if (!response.ok) {
         throw new Error("Failed to fetch routes");
       }

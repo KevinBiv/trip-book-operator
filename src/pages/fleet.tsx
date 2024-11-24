@@ -12,6 +12,8 @@ interface BusInfo {
 }
 
 export default function FleetDashboard() {
+  const baseURL = "https://trip-book-backend.onrender.com";
+
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [buses, setBuses] = useState<BusInfo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,7 +22,7 @@ export default function FleetDashboard() {
   const fetchBuses = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/buses");
+      const response = await fetch(`${baseURL}/api/buses`);
       if (!response.ok) {
         throw new Error("Failed to fetch buses");
       }

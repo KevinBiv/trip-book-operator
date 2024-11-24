@@ -12,6 +12,8 @@ export default function AddRouteModal({
   onClose,
   onRouteAdded,
 }: AddRouteModalProps) {
+  const baseURL = "https://trip-book-backend.onrender.com";
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -36,7 +38,7 @@ export default function AddRouteModal({
         status: formData.status,
       };
 
-      const response = await fetch("http://localhost:5000/api/routes", {
+      const response = await fetch(`${baseURL}/api/routes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

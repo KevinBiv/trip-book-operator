@@ -13,7 +13,7 @@ import BookingsTrend from "../Dashboard/BookingsTrend";
 const stats = [
   {
     name: "Total Revenue",
-    value: "$45,231",
+    value: "5,231,000Rwf",
     change: "+12.5%",
     trend: "up",
     icon: DollarSign,

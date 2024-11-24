@@ -25,6 +25,8 @@ interface ScheduleListProps {
 }
 
 export default function ScheduleList({ refreshTrigger }: ScheduleListProps) {
+  const baseURL = "https://trip-book-backend.onrender.com";
+
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +42,7 @@ export default function ScheduleList({ refreshTrigger }: ScheduleListProps) {
   const fetchSchedules = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/schedules");
+      const response = await fetch(`${baseURL}/api/schedules`);
       if (!response.ok) {
         throw new Error("Failed to fetch schedules");
       }

@@ -33,6 +33,8 @@ export default function AddScheduleModal({
   onDateChange,
   onScheduleAdded,
 }: AddScheduleModalProps) {
+  const baseURL = "https://trip-book-backend.onrender.com";
+
   const [scheduleType, setScheduleType] = useState<"one-time" | "recurring">(
     "one-time"
   );
@@ -58,7 +60,7 @@ export default function AddScheduleModal({
       setError(null);
 
       try {
-        const response = await fetch("http://localhost:5000/api/buses");
+        const response = await fetch(`${baseURL}/api/buses`);
         if (!response.ok) throw new Error("Failed to fetch buses");
         const data = await response.json();
         const activeBuses = data.filter((bus: Bus) => bus.status === "active");
@@ -110,7 +112,7 @@ export default function AddScheduleModal({
     };
 
     try {
-      const response = await fetch("http://localhost:5000/api/schedules", {
+      const response = await fetch(`${baseURL}/api/schedules`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

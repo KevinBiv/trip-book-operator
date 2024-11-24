@@ -14,11 +14,11 @@ const menuItems = [
   { name: "Analytics", icon: BarChart2, path: "/" },
   { name: "Schedule", icon: Calendar, path: "/schedule" },
   { name: "Routes", icon: MapPin, path: "/routes" },
-  { name: "Passengers", icon: Users, path: "/passengers" },
+  // { name: "Passengers", icon: Users, path: "/passengers" },
   { name: "Fleet", icon: Bus, path: "/fleet" },
-  { name: "Revenue", icon: DollarSign, path: "/revenue" },
-  { name: "Settings", icon: Settings, path: "/settings" },
-  { name: "Support", icon: HelpCircle, path: "/support" },
+  // { name: "Revenue", icon: DollarSign, path: "/revenue" },
+  // { name: "Settings", icon: Settings, path: "/settings" },
+  // { name: "Support", icon: HelpCircle, path: "/support" },
 ];
 
 export default function DashboardSidebar() {

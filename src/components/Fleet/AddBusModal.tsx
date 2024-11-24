@@ -25,6 +25,9 @@ export default function AddBusModal({
     type: "",
     status: "active",
   });
+
+  const baseURL = "https://trip-book-backend.onrender.com";
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,7 +47,7 @@ export default function AddBusModal({
     setError(null);
 
     try {
-      const response = await fetch("http://localhost:5000/api/buses", {
+      const response = await fetch(`${baseURL}/api/buses`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
