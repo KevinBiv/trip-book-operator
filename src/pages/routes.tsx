@@ -130,11 +130,11 @@ export default function RoutesDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Routes List */}
             <div className="bg-white rounded-lg shadow-sm">
-              <RoutesList
+              {/* <RoutesList
                 routes={filteredRoutes}
                 onRouteSelect={setSelectedRoute}
                 selectedRoute={selectedRoute}
-              />
+              /> */}
             </div>
             {/* Map View */}
             <div className="bg-white rounded-lg shadow-sm p-4">

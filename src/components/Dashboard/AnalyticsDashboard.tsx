@@ -9,6 +9,8 @@ import {
 import RevenueChart from "../Dashboard/RevenueChart";
 import PopularRoutesTable from "../Dashboard/PopularRoutesTable";
 import BookingsTrend from "../Dashboard/BookingsTrend";
+import RoutesTable from "../Routes/RoutesTable";
+import { useEffect, useState } from "react";
 
 const stats = [
   {
@@ -42,6 +44,33 @@ const stats = [
 ];
 
 export default function AnalyticsDashboard() {
+  const [popularRoutes, setPopularRoutes] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchPopularRoutes = async () => {
+    const baseURL = "https://trip-book-backend.onrender.com";
+
+    try {
+      // You might want to modify the endpoint to get only popular routes
+      // e.g., /api/routes/popular or add a query parameter ?limit=5
+      const response = await fetch(`${baseURL}/api/routes`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch routes");
+      }
+      const data = await response.json();
+      // For now, let's just take the top 5 routes
+      setPopularRoutes(data.slice(0, 5));
+    } catch (error) {
+      console.error("Error fetching popular routes:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPopularRoutes();
+  }, []);
+
   return (
     <div className="space-y-8">
       {/* Stats Grid */}
@@ -113,7 +142,19 @@ export default function AnalyticsDashboard() {
           <h3 className="text-lg font-medium text-gray-900 mb-4">
             Popular Routes
           </h3>
-          <PopularRoutesTable />
+          {isLoading ? (
+            <div className="flex items-center justify-center h-48">
+              <div className="animate-spin h-8 w-8 border-4 border-primary-600 rounded-full border-t-transparent"></div>
+            </div>
+          ) : (
+            <RoutesTable
+              routes={popularRoutes}
+              onRouteSelect={(routeId) => {
+                // Handle route selection - maybe navigate to route details
+                console.log("Selected route:", routeId);
+              }}
+            />
+          )}
         </div>
       </div>
     </div>
